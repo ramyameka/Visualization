@@ -1,0 +1,145 @@
+---
+title: "Final_assignment: Analysis of crime incidents BY Ramya Meka(GR019147)"
+output: html_document
+date: "2023-06-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For the final assignment I have choosen the dataset from Kaggle "PDI (Police Data Initiative) Crime Incidents". The dataset contains the incidents of cincinnati. It contains all the details of incidents. It has total of 40 columns. Like, Victim details, Suspect details, Area codes, Hate bias, type of offense etc. It has total rows of 503,231. 
+
+It is good to analyse the what type of victims are in more danger, in which area are the incidents taking place etc. In this final assignment, using the dataset from kaggle I will analyse 5 things. 
+
+1. What are the most common type of offenses occuring?
+2. Victims of what age are high?
+3. What are the Proportion of the suspect ages ?
+4. What is the Comparison of Victim Gender and Suspect Gender probabilty?
+5. What are the most Uniform Crime Reporting of total number of victims?
+
+First we will load the necessary packages
+
+```{r}
+library(tidyverse) #load tidyverse package 
+library(ggplot2) #load ggplot2 package 
+library(dplyr) #load dplyr package 
+library(tidyr) #load tidyr package  
+```
+
+```{r}
+crime = read.csv("/Users/ramyameka/Downloads/Crime_Incidents.csv") #read CSV file
+```
+
+```{r}
+glimpse(crime)  #display summary of crime dataset
+```
+
+```{r}
+sum(is.na(crime)) #calculate the total number of null values
+crime<-na.omit(crime) #Remove the null values
+```
+
+
+Create bar plot for the top 5 offenses
+
+
+```{r}
+offense_counts <- crime %>%
+  count(OFFENSE) %>% #count the occurrences of each offense type
+  top_n(5, n)  #select 5 offenses
+
+offense_counts #view top 5 offenses
+
+ggplot(offense_counts, aes(x = reorder(OFFENSE, -n), y = n)) +  #create ggplot with offense_counts data with x and y variables
+  geom_bar(stat = "identity", fill = "yellow") + #add bar plot using blue fill color
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + #customize x-axis text angle and justification
+  labs(x = "Offense Type", y = "Frequency", title = "Top 5 Offenses in Crime Dataset") #add x-axis, y-axis and title labels
+```
+
+
+
+Create Bar plot for Victim ages 
+
+```{r}
+ggplot(crime, aes(x = VICTIM_AGE)) +  #set x as VICTIM_AGE variable
+  geom_bar(fill = "green", width = 0.5) +  #create bar plot with green bars and width 0.5
+  labs(x = "Victim Age", y = "Count", title = "Distribution of Victim Ages") #add x-axis, y-axis and title labels
+```
+
+
+
+Create Pie Chart of Suspect Ages
+
+```{r}
+#pie chart of suspect races
+ggplot(crime, aes(x = "", fill = SUSPECT_AGE)) +
+  geom_bar(width = 1) +
+  coord_polar(theta = "y") +
+  labs(x = "", y = "", title = "Proportion of Suspect Ages") + #add x-axis, y-axis and title labels
+  theme_void() +  #remove unnecessary background elements
+  theme(legend.position = "right") #adjust the legend position
+```
+  
+  
+  
+Create grouped bar chart to see the proportion between victim gender and suspect gender
+
+```{r}
+filtered_data <- crime %>% #filter rows with empty VICTIM_GENDER and SUSPECT_GENDER
+  filter(VICTIM_GENDER != "", SUSPECT_GENDER != "")
+
+
+gender_counts <- filtered_data %>%
+  group_by(VICTIM_GENDER, SUSPECT_GENDER) %>% #calculate frequency counts of Victim Gender and Suspect Gender combinations
+  summarise(Frequency = n())
+
+#create grouped bar chart of Victim Gender and Suspect Gender
+ggplot(gender_counts, aes(x = VICTIM_GENDER, y = Frequency, fill = SUSPECT_GENDER)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Victim Gender", y = "Frequency", title = "Comparison of Victim Gender and Suspect Gender") + #add x-axis, y-axis and title labels
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) #customize x-axis text angle and justification
+```
+
+
+
+Create scatterplot to see most Uniform Crime Reporting of total number of victims
+
+```{r}
+filtered_data <- crime %>%
+  filter(!is.na(UCR_GROUP) & !is.na(TOTALNUMBERVICTIMS))  #filter rows with empty UCR_GROUP and TOTALNUMBERVICTIMS
+
+
+ggplot(filtered_data, aes(x = UCR_GROUP, y = TOTALNUMBERVICTIMS)) +  #set x-axis as UCR_GROUP and y as TOTALNUMBERVICTIMS
+  geom_point(color = "violet") + #create scatterplot with violet color
+  labs(x = "UCR_GROUP", y = "Total Number of Victims", title = "Scatterplot of UCR and Total Number of Victims") + #add x-axis, y-axis and title labels
+  theme_bw() + #set theme to black and white
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) #customize x-axis text angle and justification
+```
+
+Extra analysis: Create a map of Ohio where the incidents happen most
+
+```{r}
+ohio_crime_data <- crime %>% #create a variable ohio_crime_data
+    filter(!is.na(LATITUDE_X) & !is.na(LONGITUDE_X)) %>% 
+    filter(CPD_NEIGHBORHOOD %in% c("WEST PRICE HILL", "SEDAMSVILLE"))
+
+ohio_zip_codes <- unique(crime$ZIP) #retrieve unique zip codes
+
+#remove any missing or NA values from the ZIP codes
+ohio_zip_codes <- ohio_zip_codes[!is.na(ohio_zip_codes)]
+
+ohio_crime_data <- crime %>%
+  filter(!is.na(LATITUDE_X) & !is.na(LONGITUDE_X)) %>%
+  filter(ZIP %in% ohio_zip_codes)
+
+ohio_map <- map_data("state", region = "ohio") #select region ohio
+
+ggplot() +
+  geom_polygon(data = ohio_map, aes(x = long, y = lat, group = group), fill = "lightgray", color = "white") + #fill the map color with lightgray
+  coord_map(xlim = range(ohio_map$long), ylim = range(ohio_map$lat)) + 
+  theme_void() +
+  geom_point(data = ohio_crime_data, aes(x = LONGITUDE_X, y = LATITUDE_X), color = "red", size = 2) #plot the data in red color
+```
+
+
