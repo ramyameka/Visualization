@@ -1,0 +1,47 @@
+---
+title: "Sales Rep Map By Ramya Meka(GR019147)"
+output: html_document
+date: "2023-07-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this lab, we will map the Sales rep across the US. 
+
+```{r}
+library(maps) #load maps package
+library(ggplot2) #load ggplot2 package
+library(dplyr) #load dplyr package
+library(usmap) #load usmap package
+library(readxl) #load readxl package
+```
+
+
+```{r}
+sales_data <- read_excel("/Users/ramyameka/Downloads/Sales_reps.xlsx", sheet = "States") #read from excel file and assign data from sheet named "States" 
+Rep_names <- read_excel("/Users/ramyameka/Downloads/Sales_reps.xlsx", sheet = "Reps") #read from excel file and assign data from sheet named "Reps" 
+```
+
+```{r}
+x <- state.name #assign the value of state.name to x
+```
+
+```{r}
+filtered_dataset <- sales_data[sales_data$State %in% x, ]  #filter sales_data dataset to include only rows where State column matches any entry in the x vector
+
+filtered_dataset <- rename(filtered_dataset, state = State) #rename State column in the filtered_dataset to state
+```
+
+
+```{r}
+k<-merge(filtered_dataset, Rep_names, by.x="Sales Rep", by.y = "Number") #merge filtered_dataset and Rep_names data frames based on "Sales Rep" column in filtered_dataset and the "Number" column in Rep_names
+```
+
+
+
+```{r}
+plot_usmap(data = k, values = "Name") + #create US map plot using the merged data frame k, with the "Name" column as the values to display
+  theme(legend.position = "right") 
+```
