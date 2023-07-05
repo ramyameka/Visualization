@@ -1,0 +1,45 @@
+---
+title: "Analysis using iris Dataset"
+output: html_document
+date: "2023-06-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(plotly) #load the plotly package
+
+data(iris)  #load iris dataset
+scatter_plot <- plot_ly(data = iris, x = ~Sepal.Width, y = ~Sepal.Length, color = ~Species, type = "scatter", mode = "markers") #create scatter plot using plot_ly with iris dataset mapping Sepal.Width to x-axis, Sepal.Length to y-axis, and species to color.
+scatter_plot <- scatter_plot %>% layout(title = "Iris Sepal Width vs. Sepal Length", xaxis = list(title = "Sepal Width"), yaxis = list(title = "Sepal Length")) #customize the layout of the scatter plot by setting the title, x-axis and y-axis label
+scatter_plot #display the scatter plot
+```
+
+The code begins by loading the iris dataset using data(iris). Scatter plot is created using the plot_ly function from the plotly package. The scatter plot uses iris dataset as the data source and maps the Sepal.Width variable to the x-axis, Sepal.Length variable to the y-axis and Species variable to the color of the markers. The scatter plot is displayed by calling the scatter_plot variable. This allows the end user to visualize and explore the relationship between sepal width and sepal length of different iris species in an interactive manner.
+
+```{r}
+data(iris) 
+histogram <- plot_ly(data = iris, x = ~Sepal.Length, type = "histogram")  #create histogram using plot_ly with iris dataset, mapping Sepal.Length to the x-axis
+histogram <- histogram %>% layout(title = "Distribution of Iris Sepal Length", xaxis = list(title = "Sepal Length"), yaxis = list(title = "Count")) #customize the layout of histogram by setting the title, x-axis and y-axis label
+histogram #display the histogram
+```
+
+The plot_ly function is used to create the histogram specifying iris dataset as the data source and mapping the Sepal.Length variable to the x-axis. The resulting histogram is stored in the histogram variable. The layout of the histogram is customized using the %>% operator and the layout function. The histogram is displayed by calling the histogram variable. This allows to visualize the distribution of sepal lengths in the iris dataset providing insights into the range and frequency of sepal lengths.
+
+
+```{r}
+line_chart <- plot_ly(data = iris, x = ~Species, y = ~Petal.Length, color = ~Species, type = "scatter", mode = "lines") #create line chart using plot_ly with iris dataset mapping species to the x-axis and Petal.Length to the y-axis
+line_chart <- line_chart %>% layout(title = "Iris Petal Length by Species", xaxis = list(title = "Species"), yaxis = list(title = "Petal Length")) #customize the layout of line chart by setting the title, x-axis and y-axis label
+line_chart #display line chart
+```
+
+
+The plot_ly function is used to create line chart specifying iris dataset as the data source and mapping the species variable to x-axis and Petal.Length variable to the y-axis. The resulting line chart is stored in line_chart variable. The line chart is displayed by calling the line_chart variable. This allows to visualize the relationship between the petal length and the species of the iris flowers. The lines in the chart represent trend of petal length for each species providing insights into the variations in petal length.
+
+
+
+
+
